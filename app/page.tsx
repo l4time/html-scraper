@@ -1,95 +1,63 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import React from 'react';
 
 export default function Home() {
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-4xl font-bold mb-6">Web Content Scraper and Markdown Converter</h1>
+      
+      <p className="mb-4">
+        This application provides an API for scraping web content and converting it to markdown format.
+      </p>
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+      <h2 className="text-2xl font-semibold mt-6 mb-3">How to Use</h2>
+      
+      <h3 className="text-xl font-semibold mt-4 mb-2">API Endpoint</h3>
+      <code className="bg-gray-100 p-2 rounded">GET /:url</code>
+      <p className="mt-2">Replace <code>:url</code> with the URL you want to scrape, properly encoded.</p>
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
+      <h3 className="text-xl font-semibold mt-4 mb-2">Examples</h3>
+      
+      <h4 className="text-lg font-semibold mt-3 mb-1">1. Plain Text Response</h4>
+      <code className="bg-gray-100 p-2 rounded block">
+        curl http://localhost:3000/https://www.example.com
+      </code>
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
+      <h4 className="text-lg font-semibold mt-3 mb-1">2. JSON Response</h4>
+      <code className="bg-gray-100 p-2 rounded block">
+        curl -H "Accept: application/json" http://localhost:3000/https://www.example.com
+      </code>
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
+      <h3 className="text-xl font-semibold mt-4 mb-2">Response Format</h3>
+      
+      <h4 className="text-lg font-semibold mt-3 mb-1">Plain Text Response</h4>
+      <pre className="bg-gray-100 p-2 rounded">
+{`Title: [Article Title]
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+URL Source: [Source URL]
+
+Published Time: [Publication Time]
+
+Markdown Content:
+[Markdown content of the article]`}
+      </pre>
+
+      <h4 className="text-lg font-semibold mt-3 mb-1">JSON Response</h4>
+      <pre className="bg-gray-100 p-2 rounded">
+{`{
+  "title": "Article Title",
+  "url": "Source URL",
+  "publishedTime": "Publication Time",
+  "content": "Markdown content of the article"
+}`}
+      </pre>
+
+      <h2 className="text-2xl font-semibold mt-6 mb-3">Features</h2>
+      <ul className="list-disc pl-6">
+        <li>Scrapes web content and converts it to markdown</li>
+        <li>Caches results for 1 hour to improve performance</li>
+        <li>Supports special processing rules for specific domains (e.g., www.service-public.fr)</li>
+        <li>Provides both JSON and plain text responses</li>
+      </ul>
+    </div>
   );
 }
