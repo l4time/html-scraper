@@ -1,36 +1,120 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Web Content Scraper and Markdown Converter
+
+This Next.js application provides an API for scraping web content and converting it to markdown format. Inspired by Jina AI Reader, it's designed to handle high-volume requests efficiently, with features like caching and special rules for specific websites.
+
+## Technology Stack
+
+- Built with Next.js 14, utilizing the App Router for improved performance and easier routing
+- TypeScript for type safety and better developer experience
+- Node.js backend for efficient server-side operations
+
+## Features
+
+- Scrapes web content and converts it to markdown
+- Caches results for 1 hour to improve performance
+- Supports special processing rules for specific domains (e.g., www.service-public.fr)
+- Provides both JSON and plain text responses
+- Leverages Next.js 14 App Router for optimized routing and rendering
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Node.js (v14 or later)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
+   ```
+   git clone https://github.com/l4time/readability-app
+   cd readability-app
+   ```
+
+2. Install dependencies:
+   ```
+   npm install
+   ```
+
+3. Run the development server:
+   ```
+   npm run dev
+   ```
+
+The app will be available at `http://localhost:3000`.
+
+## Usage
+
+### API Endpoint
+
+The main API endpoint is:
+
+```
+GET /:url
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Replace `:url` with the URL you want to scrape, encoded properly.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Examples
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+1. Scrape a website and get a plain text response:
+   ```
+   curl http://localhost:3000/https://www.example.com
+   ```
 
-## Learn More
+2. Scrape a website and get a JSON response:
+   ```
+   curl -H "Accept: application/json" http://localhost:3000/https://www.example.com
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+### Response Format
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+#### Plain Text Response
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+```
+Title: [Article Title]
 
-## Deploy on Vercel
+URL Source: [Source URL]
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Published Time: [Publication Time]
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Markdown Content:
+[Markdown content of the article]
+```
+
+#### JSON Response
+
+```json
+{
+  "title": "Article Title",
+  "url": "Source URL",
+  "publishedTime": "Publication Time",
+  "content": "Markdown content of the article"
+}
+```
+
+## Special Rules
+
+The app includes special processing rules for certain domains. Currently, there's a rule for `www.service-public.fr` that trims content after a specific point.
+
+To add more rules, modify the `specialRules.ts` file in the `utils` directory.
+
+## Caching
+
+Results are cached for 1 hour to improve performance and reduce load on target websites. Repeated requests for the same URL within this timeframe will return the cached result.
+
+## Error Handling
+
+The app includes basic error handling. If a scraping operation fails, it will return an appropriate error message with a 500 status code.
+
+## Inspiration
+
+This project was inspired by Jina AI Reader, aiming to provide a similar functionality with a focus on performance and scalability using Next.js 14.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License.
