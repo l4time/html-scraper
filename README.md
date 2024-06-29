@@ -1,16 +1,18 @@
 # Web Content Scraper and Markdown Converter
 
-This Next.js application provides an API for scraping web content and converting it to markdown format. Inspired by Jina AI Reader, it's designed to handle high-volume requests efficiently, with features like caching and special rules for specific websites.
+This Next.js application provides an API for scraping web content and converting it to markdown format. Inspired by Jina AI Reader, it's designed to handle high-volume requests efficiently, with features like caching and special rules for specific websites. The app utilizes Mozilla's Readability library to extract and parse content from web pages.
 
 ## Technology Stack
 
 - Built with Next.js 14, utilizing the App Router for improved performance and easier routing
 - TypeScript for type safety and better developer experience
 - Node.js backend for efficient server-side operations
+- Mozilla's Readability library for content extraction
 
 ## Features
 
 - Scrapes web content and converts it to markdown
+- Uses Mozilla's Readability library to extract the main content from web pages
 - Caches results for 1 hour to improve performance
 - Supports special processing rules for specific domains (e.g., www.service-public.fr)
 - Provides both JSON and plain text responses
@@ -92,6 +94,10 @@ Markdown Content:
   "content": "Markdown content of the article"
 }
 ```
+
+## Mozilla Readability
+
+This app uses Mozilla's Readability library, which is the same technology behind Firefox's Reader View. Readability removes clutter from web pages, leaving only the main content, which is then processed and converted to markdown. This ensures that the extracted content is clean, readable, and free from advertisements and other distractions.
 
 ## Special Rules
 
