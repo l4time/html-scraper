@@ -4,9 +4,11 @@ import { Readability } from '@mozilla/readability';
 import TurndownService from 'turndown';
 import { specialRules } from '@/utils/specialRules';
 import NodeCache from 'node-cache';
+import puppeteer from 'puppeteer';
 
-// Initialize cache with 1 hour TTL
 const cache = new NodeCache({ stdTTL: 3600 });
+
+const FAKE_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36';
 
 export async function GET(
   request: NextRequest,
@@ -26,30 +28,45 @@ export async function GET(
           });
     }
 
-    const response = await fetch(fullUrl);
+    console.log(`Fetching URL: ${fullUrl}`);
     
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.setUserAgent(FAKE_USER_AGENT);
     
-    const html = await response.text();
+    await page.goto(fullUrl, { waitUntil: 'networkidle0' });
+    
+    const html = await page.content();
+    console.log(`Received HTML content length: ${html.length}`);
+
+    await browser.close();
 
     const dom = new JSDOM(html, { url: fullUrl });
+    console.log('JSDOM instance created');
+
     const reader = new Readability(dom.window.document);
+    console.log('Readability instance created');
+
     const article = reader.parse();
+    console.log('Article parsed');
 
     if (!article) {
-      throw new Error('Failed to parse article');
+      throw new Error('Failed to parse article: Readability returned null');
     }
+
+    console.log(`Article title: ${article.title}`);
+    console.log(`Article content length: ${article.content.length}`);
 
     const turndownService = new TurndownService();
     let markdownContent = turndownService.turndown(article.content);
+    console.log(`Markdown content length: ${markdownContent.length}`);
 
     // Apply special rules
     const urlObject = new URL(fullUrl);
     const domain = urlObject.hostname;
     if (domain in specialRules) {
       markdownContent = (specialRules as Record<string, (content: string) => string>)[domain](markdownContent);
+      console.log(`Applied special rules for domain: ${domain}`);
     }
 
     const result: ArticleResult = {
@@ -61,6 +78,7 @@ export async function GET(
 
     // Store result in cache
     cache.set(fullUrl, result);
+    console.log('Result stored in cache');
 
     if (jsonMode) {
       return NextResponse.json(result);
@@ -71,11 +89,24 @@ export async function GET(
     }
   } catch (error) {
     console.error('Error in API route:', error);
-    const errorMessage = `Failed to scrape and parse the URL: ${(error as Error).message}`;
+    let errorMessage = 'An unknown error occurred';
+    let statusCode = 500;
+
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      if (error.message.includes('HTTP error! status:')) {
+        statusCode = parseInt(error.message.split(':')[1].trim());
+      } else if (error.message.includes('Failed to parse article')) {
+        statusCode = 422; // Unprocessable Entity
+      }
+    }
+
+    console.error(`Error details: ${errorMessage}`);
+    
     if (jsonMode) {
-      return NextResponse.json({ error: errorMessage }, { status: 500 });
+      return NextResponse.json({ error: errorMessage }, { status: statusCode });
     } else {
-      return new NextResponse(errorMessage, { status: 500, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+      return new NextResponse(`Error: ${errorMessage}`, { status: statusCode, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
     }
   }
 }
