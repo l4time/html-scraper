@@ -4,7 +4,6 @@ import { Readability } from '@mozilla/readability';
 import TurndownService from 'turndown';
 import { specialRules } from '@/utils/specialRules';
 import NodeCache from 'node-cache';
-import puppeteer from 'puppeteer';
 
 const cache = new NodeCache({ stdTTL: 3600 });
 
@@ -16,6 +15,7 @@ export async function GET(
 ) {
   const fullUrl = params.url.join('/');
   const jsonMode = request.headers.get('Accept') === 'application/json';
+  const usePuppeteer = request.nextUrl.searchParams.get('usePuppeteer') === 'true';
 
   try {
     // Check cache first
@@ -30,16 +30,32 @@ export async function GET(
 
     console.log(`Fetching URL: ${fullUrl}`);
     
-    const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
-    const page = await browser.newPage();
-    await page.setUserAgent(FAKE_USER_AGENT);
+    let html: string;
     
-    await page.goto(fullUrl, { waitUntil: 'networkidle0' });
-    
-    const html = await page.content();
-    console.log(`Received HTML content length: ${html.length}`);
+    if (usePuppeteer) {
+      // Dynamically import puppeteer only when needed
+      const puppeteer = await import('puppeteer');
+      const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+      const page = await browser.newPage();
+      await page.setUserAgent(FAKE_USER_AGENT);
+      
+      await page.goto(fullUrl, { waitUntil: 'networkidle0' });
+      
+      html = await page.content();
+      await browser.close();
+    } else {
+      const response = await fetch(fullUrl, {
+        headers: {
+          'User-Agent': FAKE_USER_AGENT
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      html = await response.text();
+    }
 
-    await browser.close();
+    console.log(`Received HTML content length: ${html.length}`);
 
     const dom = new JSDOM(html, { url: fullUrl });
     console.log('JSDOM instance created');

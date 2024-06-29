@@ -1,6 +1,6 @@
 # Web Content Scraper and Markdown Converter
 
-This Next.js application provides an API for scraping web content and converting it to markdown format. Inspired by Jina AI Reader, it's designed to handle high-volume requests efficiently, with features like caching and special rules for specific websites. The app utilizes Mozilla's Readability library to extract and parse content from web pages.
+This Next.js application provides an API for scraping web content and converting it to markdown format. Inspired by Jina AI Reader, it's designed to handle high-volume requests efficiently, with features like caching and special rules for specific websites. The app utilizes Mozilla's Readability library to extract and parse content from web pages, with an optional Puppeteer-based scraping for JavaScript-heavy sites.
 
 ## Technology Stack
 
@@ -8,11 +8,13 @@ This Next.js application provides an API for scraping web content and converting
 - TypeScript for type safety and better developer experience
 - Node.js backend for efficient server-side operations
 - Mozilla's Readability library for content extraction
+- Optional Puppeteer integration for JavaScript-rendered content
 
 ## Features
 
 - Scrapes web content and converts it to markdown
 - Uses Mozilla's Readability library to extract the main content from web pages
+- Optional Puppeteer-based scraping for JavaScript-heavy websites
 - Caches results for 1 hour to improve performance
 - Supports special processing rules for specific domains (e.g., www.service-public.fr)
 - Provides both JSON and plain text responses
@@ -57,16 +59,20 @@ GET /:url
 
 Replace `:url` with the URL you want to scrape, encoded properly.
 
+### Query Parameters
+
+- `usePuppeteer`: Set to `true` to use Puppeteer for JavaScript-rendered content. Default is `false`.
+
 ### Examples
 
-1. Scrape a website and get a plain text response:
+1. Scrape a website using the default method and get a plain text response:
    ```
    curl http://localhost:3000/https://www.example.com
    ```
 
-2. Scrape a website and get a JSON response:
+2. Scrape a website using Puppeteer and get a JSON response:
    ```
-   curl -H "Accept: application/json" http://localhost:3000/https://www.example.com
+   curl -H "Accept: application/json" "http://localhost:3000/https://www.example.com?usePuppeteer=true"
    ```
 
 ### Response Format
@@ -95,9 +101,11 @@ Markdown Content:
 }
 ```
 
-## Mozilla Readability
+## Mozilla Readability and Puppeteer
 
-This app uses Mozilla's Readability library, which is the same technology behind Firefox's Reader View. Readability removes clutter from web pages, leaving only the main content, which is then processed and converted to markdown. This ensures that the extracted content is clean, readable, and free from advertisements and other distractions.
+This app primarily uses Mozilla's Readability library, which is the same technology behind Firefox's Reader View. Readability removes clutter from web pages, leaving only the main content, which is then processed and converted to markdown.
+
+For JavaScript-heavy websites where content is dynamically loaded, the app offers an optional Puppeteer-based scraping method. This can be activated by setting the `usePuppeteer` query parameter to `true`.
 
 ## Special Rules
 
@@ -111,11 +119,16 @@ Results are cached for 1 hour to improve performance and reduce load on target w
 
 ## Error Handling
 
-The app includes basic error handling. If a scraping operation fails, it will return an appropriate error message with a 500 status code.
+The app includes basic error handling. If a scraping operation fails, it will return an appropriate error message with a corresponding status code.
+
+## Performance Considerations
+
+- By default, the app uses a simple fetch request to retrieve web content, which is less resource-intensive.
+- Puppeteer is only loaded and used when explicitly requested via the `usePuppeteer` query parameter, helping to minimize CPU and memory usage for most requests.
 
 ## Inspiration
 
-This project was inspired by Jina AI Reader, aiming to provide a similar functionality with a focus on performance and scalability using Next.js 14.
+This project was inspired by Jina AI Reader, aiming to provide similar functionality with a focus on performance and scalability using Next.js 14.
 
 ## Contributing
 
