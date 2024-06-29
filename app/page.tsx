@@ -24,7 +24,7 @@ export default function Home() {
 
       <h4 className="text-lg font-semibold mt-3 mb-1">2. JSON Response</h4>
       <code className="bg-gray-100 p-2 rounded block">
-        curl -H "Accept: application/json" http://localhost:3000/https://www.example.com
+        curl -H &quot;Accept: application/json&quot; http://localhost:3000/https://www.example.com
       </code>
 
       <h3 className="text-xl font-semibold mt-4 mb-2">Response Format</h3>
